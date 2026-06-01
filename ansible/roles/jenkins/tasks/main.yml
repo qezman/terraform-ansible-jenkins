@@ -1,20 +1,15 @@
-# Installs Java, adds the Jenkins repo, installs and starts Jenkins
-- name: Install Java 17
+- name: Install Java 21
   apt:
-    name: openjdk-17-jdk
+    name: openjdk-21-jdk
     state: present
     update_cache: yes
 
-- name: Add Jenkins GPG key
-  apt_key:
-    url: https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
-    state: present
-
-# Add the Jenkins repository to apt's sources list
-- name: Add Jenkins repository
-  apt_repository:
-    repo: deb https://pkg.jenkins.io/debian-stable binary/
-    state: present
+- name: Add Jenkins GPG key and repository
+  shell: |
+    curl -fsSL https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key | gpg --dearmor | sudo tee /usr/share/keyrings/jenkins-keyring.gpg > /dev/null
+    echo "deb [signed-by=/usr/share/keyrings/jenkins-keyring.gpg] https://pkg.jenkins.io/debian-stable binary/" | sudo tee /etc/apt/sources.list.d/jenkins.list > /dev/null
+  args:
+    creates: /etc/apt/sources.list.d/jenkins.list
 
 - name: Install Jenkins
   apt:
