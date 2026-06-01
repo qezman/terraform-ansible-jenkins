@@ -1,0 +1,117 @@
+pipeline {
+    agent any
+    environment {
+        AWS_REGION          = 'us-east-1'
+        APP_SERVER_IP       = '13.219.233.21'
+        JENKINS_SERVER_IP   = '3.235.133.4'
+        ANSIBLE_DIR         = 'ansible'
+        TERRAFORM_DIR       = 'terraform'
+        SSH_KEY             = credentials('ansible-ssh-key')
+    }
+
+    stages {
+
+        // STAGE 1: Checkout
+        stage('Checkout') {
+            steps {
+                checkout scm
+                echo 'Code checked out successfully'
+            }
+        }
+
+        // STAGE 2: Terraform Init & Plan
+        stage('Terraform Init & Plan') {
+            steps {
+                dir("${TERRAFORM_DIR}") {
+                    sh 'terraform init'
+                    sh 'terraform plan'
+                }
+            }
+        }
+
+        // STAGE 3: Terraform Apply
+        stage('Terraform Apply') {
+            steps {
+                dir("${TERRAFORM_DIR}") {
+                    sh 'terraform apply -auto-approve'
+                }
+            }
+        }
+
+        // STAGE 4: Generate Ansible Inventory
+        stage('Generate Ansible Inventory') {
+            steps {
+                dir("${TERRAFORM_DIR}") {
+                    script {
+                        // Capture Terraform output
+                        def appIp = sh(
+                            script: 'terraform output -raw app_public_ip',
+                            returnStdout: true
+                        ).trim()
+
+                        // Write a fresh inventory file using that IP
+                        writeFile file: "../${ANSIBLE_DIR}/inventory.ini", text: """
+[jenkins]
+${JENKINS_SERVER_IP} ansible_user=ubuntu ansible_ssh_private_key_file=${SSH_KEY}
+
+[app]
+${appIp} ansible_user=ubuntu ansible_ssh_private_key_file=${SSH_KEY}
+
+[all:vars]
+ansible_python_interpreter=/usr/bin/python3
+"""
+                        echo "Inventory generated with app IP: ${appIp}"
+                    }
+                }
+            }
+        }
+
+        // STAGE 5: Ansible Deploy
+        stage('Ansible Deploy') {
+            steps {
+                dir("${ANSIBLE_DIR}") {
+                    sh """
+                        ansible-playbook \
+                            -i inventory.ini \
+                            --limit app \
+                            --private-key ${SSH_KEY} \
+                            -u ubuntu \
+                            site.yml
+                    """
+                }
+            }
+        }
+
+        // STAGE 6: Verify Deployment
+        stage('Verify Deployment') {
+            steps {
+                script {
+                    def appIp = sh(
+                        script: "cd ${TERRAFORM_DIR} && terraform output -raw app_public_ip",
+                        returnStdout: true
+                    ).trim()
+
+                    // Retry 5 times with 10 second gaps
+                    retry(5) {
+                        sleep(10)
+                        sh "curl -f http://${appIp}"
+                    }
+                }
+            }
+        }
+    }
+
+    // POST - runs after all stages regardless of outcome
+    post {
+        success {
+            echo 'Pipeline completed successfully - app is deployed!'
+        }
+        failure {
+            echo 'Pipeline failed - check the stage logs above for details'
+        }
+        always {
+            // clean up the workspace after each run
+            cleanWs()
+        }
+    }
+}
