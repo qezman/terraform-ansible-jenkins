@@ -1,0 +1,16 @@
+# Terraform sensitive data
+.terraform/
+*.tfstate
+*.tfstate.backup
+*.tfvars
+.terraform.lock.hcl
+
+# Ansible retries
+*.retry
+
+# SSH keys
+*.pem
+*.key
+
+# OS junk
+.DS_Store
