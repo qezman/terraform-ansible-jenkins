@@ -1,0 +1,16 @@
+---
+# Play 1
+- name: Configure Jenkins server
+  hosts: jenkins
+  become: true
+
+  roles:
+    - jenkins
+
+# Play 2
+- name: Configure app server
+  hosts: app
+  become: true
+
+  roles:
+    - docker

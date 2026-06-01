@@ -1,0 +1,2 @@
+ansible_user: ubuntu          # default SSH user for all hosts
+become: true                  # run tasks as sudo by default across all plays
