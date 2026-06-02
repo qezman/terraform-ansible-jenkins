@@ -2,8 +2,8 @@ pipeline {
     agent any
     environment {
         AWS_REGION          = 'us-east-1'
-        APP_SERVER_IP       = '13.219.233.21'
-        JENKINS_SERVER_IP   = '3.235.133.4'
+        APP_SERVER_IP       = '32.192.6.26'
+        JENKINS_SERVER_IP   = '44.197.241.156'
         ANSIBLE_DIR         = 'ansible'
         TERRAFORM_DIR       = 'terraform'
         SSH_KEY             = credentials('ansible-ssh-key')

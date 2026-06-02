@@ -4,12 +4,27 @@
     state: present
     update_cache: yes
 
+- name: Remove old Jenkins key and repo if they exist
+  file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - /usr/share/keyrings/jenkins-keyring.asc
+    - /usr/share/keyrings/jenkins-keyring.gpg
+    - /etc/apt/sources.list.d/jenkins.list
+
 - name: Add Jenkins GPG key and repository
   shell: |
     curl -fsSL https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key | gpg --dearmor | sudo tee /usr/share/keyrings/jenkins-keyring.gpg > /dev/null
     echo "deb [signed-by=/usr/share/keyrings/jenkins-keyring.gpg] https://pkg.jenkins.io/debian-stable binary/" | sudo tee /etc/apt/sources.list.d/jenkins.list > /dev/null
   args:
     creates: /etc/apt/sources.list.d/jenkins.list
+
+- name: Import Jenkins key directly by ID
+  shell: |
+    gpg --keyserver keyserver.ubuntu.com --recv-keys 7198F4B714ABFC68
+    gpg --export 7198F4B714ABFC68 | sudo tee -a /usr/share/keyrings/jenkins-keyring.gpg > /dev/null
+  changed_when: true
 
 - name: Install Jenkins
   apt:
