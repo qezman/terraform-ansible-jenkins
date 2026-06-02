@@ -4,7 +4,6 @@ pipeline {
     environment {
         APP_SERVER_IP   = '44.204.111.101'
         ANSIBLE_DIR     = 'ansible'
-        SSH_KEY         = credentials('ansible-ssh-key')
     }
 
     stages {
@@ -26,7 +25,6 @@ pipeline {
                         ansible-playbook \
                             -i inventory.ini \
                             --limit app \
-                            --private-key ${SSH_KEY} \
                             -u ubuntu \
                             site.yml
                     """
