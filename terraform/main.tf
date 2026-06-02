@@ -122,7 +122,7 @@ resource "aws_security_group" "app" {
 # Key Pair
 resource "aws_key_pair" "main" {
   key_name   = var.key_pair_name
-  public_key = file("C:/Users/USER/.ssh/id_ed25519.pub")
+  public_key = var.public_key
 }
 
 # EC2 Instances

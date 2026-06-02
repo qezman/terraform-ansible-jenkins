@@ -51,3 +51,9 @@ variable "my_ip" {
   type        = string
   default     = "0.0.0.0/0"
 }
+
+variable "public_key" {
+  description = "SSH public key content to install on EC2 instances"
+  type        = string
+  default     = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMm/A9UZt/rLSu0+cPrJa1ysEwl9EYhOhuxNsDEVLTqB tf-ansible-jenkins"
+}
