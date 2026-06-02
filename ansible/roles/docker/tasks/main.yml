@@ -42,3 +42,19 @@
     name: ubuntu
     groups: docker
     append: yes
+
+# simple nginx container to test
+- name: Pull nginx Docker image
+  command: docker pull nginx:latest
+  changed_when: true
+
+- name: Run nginx container
+  command: >
+    docker run -d
+    --name app
+    --restart unless-stopped
+    -p 80:80
+    nginx:latest
+  args:
+    creates: /var/lib/docker/containers # skip if already running
+  ignore_errors: true
