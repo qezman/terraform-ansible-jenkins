@@ -43,9 +43,11 @@ variable "ami_id" {
 variable "key_pair_name" {
   description = "The name of the key pair to use for the servers"
   type        = string
+  default     = "tf-ansible-jenkins-key"
 }
 
 variable "my_ip" {
-  description = "Local machone IP address"
+  description = "SSH access CIDR - open to all during development"
   type        = string
+  default     = "0.0.0.0/0"
 }
