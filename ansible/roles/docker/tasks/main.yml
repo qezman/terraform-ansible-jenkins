@@ -43,11 +43,18 @@
     groups: docker
     append: yes
 
-# simple nginx container to test
+# remove existing container if present
+- name: Remove existing app container if present
+  command: docker rm -f app
+  ignore_errors: true
+  changed_when: false
+
+# Pull latest nginx image
 - name: Pull nginx Docker image
   command: docker pull nginx:latest
   changed_when: true
 
+# Run nginx container on port 80
 - name: Run nginx container
   command: >
     docker run -d
@@ -55,6 +62,3 @@
     --restart unless-stopped
     -p 80:80
     nginx:latest
-  args:
-    creates: /var/lib/docker/containers # skip if already running
-  ignore_errors: true
