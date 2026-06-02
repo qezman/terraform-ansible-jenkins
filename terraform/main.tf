@@ -1,5 +1,4 @@
 # Networking
-
 resource "aws_vpc" "main" {
   cidr_block           = var.vpc_cidr
   enable_dns_hostnames = true
@@ -61,7 +60,7 @@ resource "aws_security_group" "jenkins" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["${var.my_ip}/32"] # exactly one IP address
+    cidr_blocks = ["0.0.0.0/0"]
   }
   ingress {
     description = "jenkins UI"
@@ -96,7 +95,7 @@ resource "aws_security_group" "app" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["${var.my_ip}/32"] # exactly one IP address
+    cidr_blocks = ["0.0.0.0/0"]
   }
   ingress {
     description = "HTTP for the app"
@@ -124,7 +123,7 @@ resource "aws_security_group" "app" {
 resource "aws_key_pair" "main" {
   key_name   = var.key_pair_name
   public_key = file("C:/Users/USER/.ssh/id_ed25519.pub")
-    }
+}
 
 # EC2 Instances
 resource "aws_instance" "jenkins" {
