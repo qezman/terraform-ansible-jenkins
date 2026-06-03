@@ -49,16 +49,14 @@
   ignore_errors: true
   changed_when: false
 
-# Pull latest nginx image
-- name: Pull nginx Docker image
-  command: docker pull nginx:latest
+- name: Pull Olfactory Fragrance image from Docker Hub
+  command: docker pull qossim005/olfactory-fragrance:latest
   changed_when: true
 
-# Run nginx container on port 80
-- name: Run nginx container
+- name: Run Olfactory Fragrance container
   command: >
     docker run -d
     --name app
     --restart unless-stopped
-    -p 80:80
-    nginx:latest
+    -p 80:3000
+    qossim005/olfactory-fragrance:latest
