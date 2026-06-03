@@ -162,3 +162,14 @@ resource "aws_instance" "app" {
     Role    = "app"
   }
 }
+
+# ELASTIC IP
+resource "aws_eip" "app" {
+  instance = aws_instance.app.id
+  domain   = "vpc"
+
+  tags = {
+    Name    = "${var.project_name}-app-eip"
+    Project = var.project_name
+  }
+}

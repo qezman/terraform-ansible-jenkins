@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        APP_SERVER_IP   = '18.204.245.186'
+        APP_SERVER_IP   = '54.205.104.157'
         ANSIBLE_DIR     = 'ansible'
     }
 

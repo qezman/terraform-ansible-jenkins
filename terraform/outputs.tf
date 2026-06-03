@@ -12,3 +12,8 @@ output "vpc_id" {
   description = "ID of the VPC"
   value       = aws_vpc.main.id
 }
+
+output "app_elastic_ip" {
+  description = "Fixed public IP for the app server"
+  value       = aws_eip.app.public_ip
+}
