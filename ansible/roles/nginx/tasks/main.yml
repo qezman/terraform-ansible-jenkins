@@ -1,0 +1,61 @@
+# Install Nginx as reverse proxy + SSL termination
+- name: Install Nginx and Certbot
+  apt:
+    name:
+      - nginx
+      - certbot
+      - python3-certbot-nginx
+    state: present
+    update_cache: yes
+
+# Remove default Nginx config
+- name: Remove default Nginx site
+  file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+
+# Create Nginx config for the app
+- name: Configure Nginx reverse proxy
+  copy:
+    dest: /etc/nginx/sites-available/olfactory
+    content: |
+      server {
+          listen 80;
+          server_name qossim005.online www.qossim005.online;
+
+          location / {
+              proxy_pass http://localhost:3000;
+              proxy_http_version 1.1;
+              proxy_set_header Upgrade $http_upgrade;
+              proxy_set_header Connection 'upgrade';
+              proxy_set_header Host $host;
+              proxy_cache_bypass $http_upgrade;
+          }
+      }
+
+# Enable the site
+- name: Enable Nginx site
+  file:
+    src: /etc/nginx/sites-available/olfactory
+    dest: /etc/nginx/sites-enabled/olfactory
+    state: link
+
+# Start and enable Nginx
+- name: Start and enable Nginx
+  service:
+    name: nginx
+    state: restarted
+    enabled: yes
+
+# Obtain SSL certificate from Let's Encrypt
+- name: Obtain SSL certificate
+  command: >
+    certbot --nginx
+    -d qossim005.online
+    -d www.qossim005.online
+    --non-interactive
+    --agree-tos
+    --email qossim005@gmail.com
+    --redirect
+  args:
+    creates: /etc/letsencrypt/live/qossim005.online/fullchain.pem
